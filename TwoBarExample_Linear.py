@@ -11,6 +11,12 @@ import general_functions as general
 # nodes
 nodes = [[1,0.00,0.00],[2,0.50,0.00],[3,1.00,0.00]]
 
+# neumann bc.
+F_master = np.matrix([[0.00,0.00,0.00,0.00,100000.00,0.00]]).T
+
+# dirichlet bc. (#dofs,#disp)
+Bc_List = [[0,0.0],[1,0.0],[3,0.00],[5,0.00]]
+
 # element stiffness matrices (E,A,L,alpha)
 Element1_K = truss.ElementStiffMatrix(2.1*(10**11),0.01,[nodes[0],nodes[1]],0.00)
 Element2_K = truss.ElementStiffMatrix(2.1*(10**11),0.01,[nodes[1],nodes[2]],0.00)
@@ -23,11 +29,6 @@ Element2_M = truss.ElementMassMatrix(7850,0.01,[nodes[1],nodes[2]])
 K_master = truss.AssembleElementMatrices([Element1_K,Element2_K],[[1,2],[2,3]])
 M_master = truss.AssembleElementMatrices([Element1_M,Element2_M],[[1,2],[2,3]])
 
-# neumann bc.
-F_master = np.matrix([[0.00,0.00,0.00,0.00,100000.00,0.00]]).T
-
-# dirichlet bc. (#dofs,#disp)
-Bc_List = [[0,0.0],[1,0.0],[3,0.00],[5,0.00]]
 
 # modify matrices and vector
 K_mod, F_mod = truss.ModifyMasterMatrix(K_master,F_master,Bc_List)
