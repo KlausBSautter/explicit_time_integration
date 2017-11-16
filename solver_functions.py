@@ -10,7 +10,7 @@ def solve_linear(LHS,RHS):
 
 
 
-def solve_explicit(M_master,K_master,F_master,Bc_List,d_t,t_end):
+def solve_explicit(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
     # initialize
     M_master_inv = explicit.InverseLumpedMatrix(M_master)
     disp_n = explicit.CreateInitialDisplacementVector(Bc_List,K_master.shape[0])
@@ -19,7 +19,7 @@ def solve_explicit(M_master,K_master,F_master,Bc_List,d_t,t_end):
 
     f_int_n = truss.CalculateInternalForces(K_master,disp_n)
     res_n = explicit.CalculateResidualExplicit(F_master,f_int_n)
-    acc_n = explicit.ComputeAcceleration(M_master_inv,res_n)
+    acc_n = explicit.ComputeAcceleration(M_master_inv,C_master,vel_n,res_n)
 
     # prepare data
     disp_expl = []
@@ -37,7 +37,7 @@ def solve_explicit(M_master,K_master,F_master,Bc_List,d_t,t_end):
         f_int_n_1 = truss.CalculateInternalForces(K_master,disp_n_1)   #----------> linear part!!!
         res_n_1 = explicit.CalculateResidualExplicit(F_master,f_int_n_1)
         # update acc + vel
-        acc_n_1 = explicit.ComputeAcceleration(M_master_inv,res_n_1)
+        acc_n_1 = explicit.ComputeAcceleration(M_master_inv,C_master,v_n_05,res_n_1)
         vel_n_1 = explicit.UpdateVelocity(v_n_05,acc_n_1,d_t)
 
         # save date
@@ -48,7 +48,6 @@ def solve_explicit(M_master,K_master,F_master,Bc_List,d_t,t_end):
         disp_n = disp_n_1
         vel_n = vel_n_1
         acc_n = acc_n_1
-        
         t_n += d_t
 
     return disp_expl, time_expl

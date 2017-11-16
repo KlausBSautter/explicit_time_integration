@@ -30,8 +30,9 @@ def UpdateTime(t_n,d_t):
     return t_n_05, t_n_1 
 
 
-def ComputeAcceleration(invM,res):
-    a = np.dot(invM,res)
+def ComputeAcceleration(invM,C,vel,res):
+    b = res - np.dot(C,vel)
+    a = np.dot(invM,b)
     return a
 
 def UpdateVelocity(vel,acc,d_t):

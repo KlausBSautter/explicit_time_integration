@@ -1,9 +1,18 @@
 import numpy as np
 import copy
+import general_functions as general
 
-def ElementStiffMatrix(E,A,L,alpha):
+def CalculateRefLength(nodes):
+    nodeA, nodeB = nodes[0],nodes[1]
+    dx = nodeB[1] - nodeA[1]
+    dy = nodeB[2] - nodeA[2]
+    L = np.sqrt((dx**2)+(dy**2))
+    return L
+
+def ElementStiffMatrix(E,A,nodes,alpha):
     c = np.cos(alpha)
     s = np.sin(alpha)
+    L = CalculateRefLength(nodes)
     K = np.matrix([[c*c,s*c,-c*c,-s*c],
                    [s*c,s*s,-s*c,-s*s],
                    [-c*c,-s*c,c*c,s*c],
@@ -11,13 +20,29 @@ def ElementStiffMatrix(E,A,L,alpha):
     K = K * (E*A/L)
     return K
 
-def ElementMassMatrix(rho,A,L):
+def ElementMassMatrix(rho,A,nodes):
+    L = CalculateRefLength(nodes)
     m = rho*L*A
     M = np.matrix([[m/2.00,0.00,0.00,0.00],
                    [0.00,m/2.00,00,00],
                    [0.00,0.00,m/2.00,0.00],
                    [0.00,0.00,0.00,m/2.00]])
     return M
+
+def MasterDampingMatrix(K,M,ListOfBc,criticalDampingRatio):
+    eigenval = general.FindEigenValues(M,K,ListOfBc) 
+    wi = eigenval[0]
+    wj = wi * 100000
+    if (len(eigenval)>1): wj = eigenval[1]
+    else: print('Attention! second eigenfrequency not available')
+    W = 0.500*np.matrix([[1.00/wi,wi],[1/wj,wj]])
+    W = np.linalg.inv(W)
+    xi = np.matrix([[criticalDampingRatio,criticalDampingRatio]]).T
+    cooef = np.dot(W,xi)
+    C = cooef[0,0] * M + cooef[1,0] * K
+    return C
+    
+
 
 
 def AssembleElementMatrices(ListOfElements,etab):

@@ -40,8 +40,6 @@ def FindEigenValues(MassMatrix,StiffnessMatrix,ListOfBc):
     MK = K_mod - M_mod * alpha
     MK_det = MK.det()
     eigenvalues = sp.solve(MK_det,alpha)
-
     eigen_array = []
-    for i in range(len(eigenvalues)): eigen_array.append(np.sqrt(np.float(eigenvalues[i])))
-
+    for i in range(new_mat_size): eigen_array.append(np.sqrt(np.float(eigenvalues[i])))
     return eigen_array
