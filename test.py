@@ -1,7 +1,6 @@
 import numpy as np
 import truss_element_linear_functions as truss
 import solver_functions as solver
-import explicit_functions as explicit
 import general_functions as general
 
 
