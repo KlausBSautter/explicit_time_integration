@@ -1,12 +1,87 @@
 import numpy as np 
 import explicit_functions as explicit
 import truss_element_linear_functions as truss
+import truss_element_non_linear_functions as truss_nl
 
 
 
 def solve_linear(LHS,RHS):
     u = np.linalg.solve(LHS,RHS)
     return u
+
+
+#ListOfElement [[element1,E,A,nodes]]
+def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
+
+    e_tollerance = 10**(-6)
+    system_size = K_T.shape[0]
+    disp_n = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
+    f_int_n = AssembleInternalForceVector(ListOfElement,disp_n,system_size)
+    r_n = CalculateResidualStatic(f_int_n,F_master)
+    r_n_norm = ResidualNorm(r_n)
+
+    while (r_n_norm > e_tollerance):
+        K_T_inv = np.linalg.inv(K_T)
+        disp_n_1 = np.dot(K_T_inv,r_n)
+        disp_n_1 = disp_n - disp_n_1
+
+        f_int_n_1 = AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
+        r_n_1 = CalculateResidualStatic(f_int_n_1,F_master)
+        
+
+        #prepare next step
+        r_n_norm = ResidualNorm(r_n_1)
+        r_n = r_n_1
+        disp_n = disp_n_1
+        
+
+        print(r_n)
+
+
+
+def AssembleInternalForceVector(ListOfElement,disp,system_size):
+    number_elements = len(ListOfElement)
+    f_int_global_total = np.zeros((system_size,1))
+
+    for i in range(number_elements):
+        nodes = ListOfElement[i][3]
+        nodeA_ref, nodeB_ref = nodes[0],nodes[1]
+        dofAi, dofBi = (nodeA_ref[0]-1)*2, (nodeB_ref[0]-1)*2
+        dofAj, dofBj = dofAi+1, dofBi+1
+
+        disp_i = np.matrix([[disp[dofAi,0],disp[dofAj,0],disp[dofBi,0],disp[dofBj,0]]]).T
+        f_int_global_element = truss_nl.CalculateInternalForces(ListOfElement[i][1],ListOfElement[i][2],nodes,disp_i)
+
+        f_int_global_total[dofAi,0] += f_int_global_element[0,0]
+        f_int_global_total[dofAj,0] += f_int_global_element[1,0]
+        f_int_global_total[dofBi,0] += f_int_global_element[2,0]
+        f_int_global_total[dofBj,0] += f_int_global_element[3,0]
+    return f_int_global_total
+
+def CalculateResidualStatic(F_int,F_ext):
+    return (F_ext-F_int)
+
+def ResidualNorm(res):
+    system_size = res.shape[0]
+    res_norm = 0.00
+    for i in range(system_size):
+        res_norm += res[i][0]**2
+    res_norm = np.sqrt(res_norm[0,0])  
+    return res_norm
+
+def UpdateStiffnessMatrix(ListOfElement,disp):
+    number_elements = len(ListOfElement)
+    new_elements = []
+    for i in range(number_elements):
+        nodes = ListOfElement[i][3]
+        E,A =   ListOfElement[i][1],ListOfElement[i][2]
+        nodeA_ref, nodeB_ref = nodes[0],nodes[1]
+        dofAi, dofBi = (nodeA_ref[0]-1)*2, (nodeB_ref[0]-1)*2
+        dofAj, dofBj = dofAi+1, dofBi+1
+
+        disp_i = np.matrix([[disp[dofAi,0],disp[dofAj,0],disp[dofBi,0],disp[dofBj,0]]]).T
+
+        new_elements.append(truss_nl.ElementStiffMatrix(E,A,nodes,disp_i))
 
 
 

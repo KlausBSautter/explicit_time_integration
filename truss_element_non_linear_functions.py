@@ -1,4 +1,5 @@
 import numpy as np
+import truss_element_linear_functions as truss_linear
 
 
 
@@ -10,11 +11,12 @@ def CalculateRefLength(nodes):
     return L
 
 def CalculateCurrentLength(nodes,disp):
+
     nodeA_ref, nodeB_ref = nodes[0],nodes[1]
     dofAi, dofBi = (nodeA_ref[0]-1)*2, (nodeB_ref[0]-1)*2
     dofAj, dofBj = dofAi+1, dofBi+1
 
-    dxi,dyi,dxj,dyj = disp[dofAi], disp[dofAj], disp[dofBi], disp[dofBj]
+    dxi,dyi,dxj,dyj = disp[dofAi][0], disp[dofAj][0], disp[dofBi][0], disp[dofBj][0]
 
     xA,xB,yA,yB = nodeA_ref[1]+dxi,nodeB_ref[1]+dxj,nodeA_ref[2]+dyi,nodeB_ref[2]+dyj
     dx,dy = xB-xA, yB-yA
@@ -28,10 +30,10 @@ def CalculateGreenLagrangeStrain(nodes,disp):
     return e_gl
     
 
-def ElementStiffMatrix(E,A,nodes,alpha,disp):
+def ElementStiffMatrix(E,A,nodes,disp):
     L = CalculateRefLength(nodes)
     e_gl = CalculateGreenLagrangeStrain(nodes,disp)
-    dx,dy,l = CalculateCurrentLength(nodes,disp)
+    dx, dy, l = CalculateCurrentLength(nodes,disp)
 
     # K_sigma 
     K_sig = np.matrix([[1,0,-1,0],
@@ -50,6 +52,24 @@ def ElementStiffMatrix(E,A,nodes,alpha,disp):
 
     K = K_sig+K_ou
     return K
+
+
+def CalculateInternalForces(E,A,nodes,disp):
+    dx,dy,l = CalculateCurrentLength(nodes,disp)
+    L = CalculateRefLength(nodes)
+    e_gl = CalculateGreenLagrangeStrain(nodes,disp)
+    N = (E*A*l*e_gl / L)[0,0]
+    f_int_loc = np.matrix([[-N,0.00,N,0.00]]).T
+    
+    # rotate to global system
+    alpha = truss_linear.CalculateInclinationAngle(nodes)
+    c = np.cos(alpha)
+    s = np.sin(alpha)
+    T = np.matrix([[c,-s,0,0],[s,c,0,0],[0,0,c,-s],[0,0,s,c]])
+    f_int_glob = np.dot(T,f_int_loc)
+
+    return f_int_glob
+
 
 
 
