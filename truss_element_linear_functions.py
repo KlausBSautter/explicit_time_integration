@@ -9,7 +9,15 @@ def CalculateRefLength(nodes):
     L = np.sqrt((dx**2)+(dy**2))
     return L
 
-def ElementStiffMatrix(E,A,nodes,alpha):
+def CalculateInclinationAngle(nodes):
+    nodeA, nodeB = nodes[0],nodes[1]
+    dx = nodeB[1] - nodeA[1]
+    dy = nodeB[2] - nodeA[2]
+    alpha = np.arctan(dy/dx)
+    return alpha
+
+def ElementStiffMatrix(E,A,nodes):
+    alpha = CalculateInclinationAngle(nodes)
     c = np.cos(alpha)
     s = np.sin(alpha)
     L = CalculateRefLength(nodes)
