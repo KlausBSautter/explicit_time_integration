@@ -11,26 +11,24 @@ def solve_linear(LHS,RHS):
     u = np.linalg.solve(LHS,RHS)
     return u
 
-
 #ListOfElement [[element1,E,A,nodes]]
 def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
 
+    print('Starting Newton-Raphson Iteration: ')
     e_tollerance = 10**(-6)
     system_size = K_T.shape[0]
     K_n = copy.deepcopy(K_T)
     disp_n = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
+
     f_int_n = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n,system_size)
     r_n = nl_solving.CalculateResidualStatic(f_int_n,F_master)
     r_n_norm = nl_solving.ResidualNorm(r_n)
-
-    n = 0 ##test
+    n = 0
     while (r_n_norm > e_tollerance):
-    #while (n < 4):
         n += 1
         K_n_inv = np.linalg.inv(K_n)
         disp_n_1 = np.dot(K_n_inv,r_n)
         disp_n_1 = disp_n - disp_n_1
-
 
         f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
         r_n_1 = nl_solving.CalculateResidualStatic(f_int_n_1,F_master)
@@ -41,6 +39,8 @@ def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
         r_n = r_n_1
         disp_n = disp_n_1
         K_n = nl_solving.UpdateStiffnessMatrix(ListOfElement,disp_n,ListOfBc)
+
+        nl_solving.PrintSolverUpdate(r_n,r_n_norm,n)
 
     return disp_n
 
@@ -75,7 +75,7 @@ def solve_explicit(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
         acc_n_1 = explicit.ComputeAcceleration(M_master_inv,C_master,v_n_05,res_n_1)
         vel_n_1 = explicit.UpdateVelocity(v_n_05,acc_n_1,d_t)
 
-        # save date
+        # save data
         time_expl.append(t_n)
         disp_expl.append(disp_n)
 

@@ -13,8 +13,7 @@ def AssembleInternalForceVector(ListOfElement,disp,system_size):
         dofAi, dofBi = (nodeA_ref[0]-1)*2, (nodeB_ref[0]-1)*2
         dofAj, dofBj = dofAi+1, dofBi+1
 
-        disp_i = np.matrix([[disp[dofAi,0],disp[dofAj,0],disp[dofBi,0],disp[dofBj,0]]]).T
-        f_int_global_element = truss_nl.CalculateInternalForces(ListOfElement[i][1],ListOfElement[i][2],nodes,disp_i)
+        f_int_global_element = truss_nl.CalculateInternalForces(ListOfElement[i][1],ListOfElement[i][2],nodes,disp)
 
         f_int_global_total[dofAi,0] += f_int_global_element[0,0]
         f_int_global_total[dofAj,0] += f_int_global_element[1,0]
@@ -53,3 +52,10 @@ def ModifyResidual(residual,ListOfBc):
     for i in range(number_bc):
         current_dof =  ListOfBc[i][0]
         residual[current_dof] = 0.00
+
+
+
+def PrintSolverUpdate(res,res_norm,step):
+    print('---------------------------------------------')
+    print('step: ', step, ' res_norm: ', res_norm)
+
