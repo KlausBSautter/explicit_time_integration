@@ -1,33 +1,26 @@
-import numpy as np
-import truss_element_non_linear_functions as truss_nl
-import truss_element_linear_functions as truss
-import solver_functions as solver
-import general_functions as general
-import explicit_functions as explicit
-import matplotlib.pyplot as plt
+from import_custom_modules import *
 
 
 ################################################################################
 #################   POSTPROCESSING #############################################
 ################################################################################
 E, A = 2.1*(10**11), 0.01
-F = -4.8*(10**7)
+F = -2.4*(10**7)
 
 # nodes
-nodes = [[1,0.00,0.00],[2,2.00,1.00],[3,4.00,0.00]]
+nodes = [[1,0.00,0.00],[2,2.00,1.00]]
 
 # neumann bc.
-F_master = np.matrix([[0.00,0.00,0.00,F,0.00,0.00]]).T
+F_master = np.matrix([[0.00,0.00,0.00,F]]).T
 
 # dirichlet bc. (#dofs,#disp)
-Bc_List = [[0,0.0],[1,0.0],[2,0.00],[4,0.0],[5,0.00]]
+Bc_List = [[0,0.0],[1,0.0],[2,0.00]]
 
 # element stiffness matrices (E,A,L,alpha)
 Element1_K = truss_nl.ElementStiffMatrix(E,A,[nodes[0],nodes[1]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
-Element2_K = truss_nl.ElementStiffMatrix(E,A,[nodes[1],nodes[2]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
 
 # assemble master matrices (#elements,#nodes)
-Element_List = [[Element1_K,E,A,[nodes[0],nodes[1]]],[Element2_K,E,A,[nodes[1],nodes[2]]]]
+Element_List = [[Element1_K,E,A,[nodes[0],nodes[1]]]]
 K_master = truss.AssembleElementMatrices(Element_List)
 
 

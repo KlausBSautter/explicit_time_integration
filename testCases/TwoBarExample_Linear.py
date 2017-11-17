@@ -1,7 +1,4 @@
-import numpy as np
-import truss_element_linear_functions as truss
-import solver_functions as solver
-import general_functions as general
+from import_custom_modules import *
 
 
 ################################################################################
@@ -13,10 +10,10 @@ E, A = 2.1*(10**11), 0.01
 nodes = [[1,0.00,0.00],[2,0.50,0.00],[3,1.00,0.00]]
 
 # neumann bc.
-F_master = np.matrix([[0.00,0.00,0.00,0.00,0.00,0.00]]).T
+F_master = np.matrix([[0.00,0.00,0.00,0.00,100000.00,0.00]]).T
 
 # dirichlet bc. (#dofs,#disp)
-Bc_List = [[0,0.0],[1,0.0],[3,0.00],[5,0.00],[4,0.10],[2,-0.10]]
+Bc_List = [[0,0.0],[1,0.0],[3,0.00],[5,0.00]]
 
 # element stiffness matrices (E,A,L,alpha)
 Element1_K = truss.ElementStiffMatrix(E,A,[nodes[0],nodes[1]])
@@ -52,8 +49,8 @@ C_master = np.zeros((K_master.shape[0],K_master.shape[0]))
 U_linear_static = solver.solve_linear(K_mod,F_mod)
 F_linear_static = np.dot(K_master,U_linear_static)
 
-#### solve linear dynamic explicit (no damping yet)
-disp_expl, time_expl =  solver.solve_explicit(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)
+#### solve linear dynamic explicit 
+disp_expl, time_expl =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)
 
 general.PrintDisplacement(disp_expl,time_expl,[2,4],'Explicit Time Integration')
 
