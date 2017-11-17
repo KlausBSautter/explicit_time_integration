@@ -45,7 +45,7 @@ def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
     return disp_n
 
 
-def solve_explicit(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
+def solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
     # initialize
     M_master_inv = explicit.InverseLumpedMatrix(M_master)
     disp_n = explicit.CreateInitialDisplacementVector(Bc_List,K_master.shape[0])
