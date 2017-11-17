@@ -49,8 +49,8 @@ F_linear_static = np.dot(K_master,U_linear_static)
 #### solve non linear static
 U_non_linear_static = solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
 
-print(U_linear_static)
-print(U_non_linear_static)
+print('linear disp: ', U_linear_static)
+print('non_linear disp: ', U_non_linear_static)
 
 #### solve linear dynamic explicit (no damping yet)
 #disp_expl, time_expl =  solver.solve_explicit(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)
