@@ -16,7 +16,8 @@ def solve_linear(LHS,RHS):
 
 #ListOfElement [[element1,E,A,nodes]]
 def solve_nonlinear_nr_lc(K_T,ListOfElement,ListOfBc,F_master):
-
+    
+    ## load control: given load -> solve for displacement
     print('\n' + '################################################# \n')
     print('Starting Newton-Raphson Iteration: ')
     start_time = timeit.default_timer()
@@ -51,6 +52,44 @@ def solve_nonlinear_nr_lc(K_T,ListOfElement,ListOfBc,F_master):
     print('################################################# \n\n')
     return disp_n
 
+def solve_nonlinear_nr_dc(K_T,ListOfElement,ListOfBc,F_master):
+    
+    ## displacement control: given displacement -> solve for load
+
+    print('\n' + '################################################# \n')
+    print('Starting Newton-Raphson Iteration: ')
+    start_time = timeit.default_timer()
+    e_tollerance = 10**(-6)
+    system_size = K_T.shape[0]
+    K_n = copy.deepcopy(K_T)
+    disp_n = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
+
+    f_int_n = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n,system_size)
+    r_n = nl_solving.CalculateResidualStatic(f_int_n,F_master)
+    r_n_norm = nl_solving.ResidualNorm(r_n)
+    n = 0
+
+    while (r_n_norm > e_tollerance):
+        n += 1
+        disp_n_1 = solve_linear(K_n,r_n)
+        disp_n_1 = disp_n - disp_n_1
+
+        f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
+        r_n_1 = nl_solving.CalculateResidualStatic(f_int_n_1,F_master)
+
+        #prepare next step
+        nl_solving.ModifyResidual(r_n_1,ListOfBc)
+        r_n_norm = nl_solving.ResidualNorm(r_n_1)
+        r_n = r_n_1
+        disp_n = disp_n_1
+        K_n = nl_solving.UpdateStiffnessMatrix(ListOfElement,disp_n,ListOfBc)
+
+        nl_solving.PrintSolverUpdate(r_n,r_n_norm,n)
+
+    elapsed = timeit.default_timer() - start_time
+    print('\n'+'Finished in: ', elapsed, ' seconds\n')
+    print('################################################# \n\n')
+    return disp_n
 
 ################################################################################
 ##################### DYNAMIC SOLVERS ###########################################
@@ -108,7 +147,7 @@ def solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end)
     return disp_expl, time_expl
 
 
-def solve_explicit_non_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
+def solve_explicit_non_linear(M_master,K_master,C_master,F_master,ListOfElements,Bc_List,d_t,t_end):
     # initialize
     M_master_inv = explicit.InverseLumpedMatrix(M_master)
     disp_n = explicit.CreateInitialDisplacementVector(Bc_List,K_master.shape[0])
@@ -117,8 +156,9 @@ def solve_explicit_non_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_
 
 
 
-    f_int_n = truss.CalculateInternalForces(K_master,disp_n)
-
+    #f_int_n = truss.CalculateInternalForces(K_master,disp_n)
+    ## create BcList with current disp
+    #f_int_n = nl_solving.AssembleInternalForceVector(ListOfElements,disp_n,M_master.shape[0])
 
 
 
@@ -140,8 +180,9 @@ def solve_explicit_non_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_
         disp_n_1 = explicit.UpdateDisplacement(v_n_05,disp_n,d_t)
 
 
-        f_int_n_1 = truss.CalculateInternalForces(K_master,disp_n_1)   #----------> linear part!!!
-
+        #f_int_n_1 = truss.CalculateInternalForces(K_master,disp_n_1)   #----------> linear part!!!
+        ## create BcList with current disp
+        #f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElements,disp_n,M_master.shape[0])
 
 
         res_n_1 = explicit.CalculateResidualExplicit(F_master,f_int_n_1)
