@@ -48,7 +48,7 @@ F_linear_static = np.dot(K_master,U_linear_static)
 
 
 #### solve non linear static
-U_non_linear_static = solver.solve_nonlinear_nr(K_mod,Element_List_K,Bc_List,F_mod)
+U_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List_K,Bc_List,F_mod)
 
 print('############ RESULTS ############')
 print('linear disp: ', U_linear_static.T)
@@ -56,10 +56,11 @@ print('non_linear disp: ', U_non_linear_static.T)
 
 
 
-#### solve linear dynamic explicit (no damping yet)
-analysis_type = 'linear'
-disp_expl_lin, time_expl_lin =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.0001, 0.04)
-general.PrintDisplacement(disp_expl_lin,time_expl_lin,[3],'Explicit Time Integration Linear')
+#### solve linear dynamic explicit 
+#disp_expl_lin, time_expl_lin =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.0001, 0.02)
+#general.PrintDisplacement(disp_expl_lin,time_expl_lin,[3],'Explicit Time Integration Linear')
 
-
+#### solve linear dynamic explicit 
+disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,Bc_List,0.0001, 0.02)
+general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3],'Explicit Time Integration Non-Linear')
 

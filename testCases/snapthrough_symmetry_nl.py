@@ -41,7 +41,7 @@ F_linear_static = np.dot(K_master,U_linear_static)
 
 
 #### solve non linear static
-U_non_linear_static = solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
+U_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List,Bc_List,F_mod)
 
 print('############ RESULTS ############')
 print('linear disp: ', U_linear_static.T)

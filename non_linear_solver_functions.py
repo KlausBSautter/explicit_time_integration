@@ -51,6 +51,7 @@ def ModifyResidual(residual,ListOfBc):
     number_bc = len(ListOfBc)
     for i in range(number_bc):
         current_dof =  ListOfBc[i][0]
+        #current_disp = ListOfBc[i][1]    #### !! think about initial displacements in case of dynamics --> moving also consider res
         residual[current_dof] = 0.00
 
 
