@@ -24,7 +24,9 @@ Bc_List = [[0,0.0],[1,0.0],[2,0.00]]
 Element1_K = truss_nl.ElementStiffMatrix(E,A,[nodes[0],nodes[1]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
 
 # assemble master matrices (#elements,#nodes)
-K_master = truss.AssembleElementMatrices([Element1_K],[[1,2]])
+Element_List = [[Element1_K,E,A,[nodes[0],nodes[1]]]]
+K_master = truss.AssembleElementMatrices(Element_List)
+
 
 
 # modify matrices and vector
@@ -39,12 +41,11 @@ K_mod, F_mod = truss.ModifyMasterMatrix(K_master,F_master,Bc_List)
 ##### solve linear static
 U_linear_static = solver.solve_linear(K_mod,F_mod)
 F_linear_static = np.dot(K_master,U_linear_static)
-#print(U_linear_static)
+print(U_linear_static)
 
 
 #### solve non linear static
-Element_List = [[Element1_K,E,A,[nodes[0],nodes[1]]]]
-solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
+#solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
 
 #### solve linear dynamic explicit (no damping yet)
 #disp_expl, time_expl =  solver.solve_explicit(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)

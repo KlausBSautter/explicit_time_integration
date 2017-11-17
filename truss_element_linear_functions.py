@@ -53,7 +53,15 @@ def MasterDampingMatrix(K,M,ListOfBc,criticalDampingRatio):
 
 
 
-def AssembleElementMatrices(ListOfElements,etab):
+def AssembleElementMatrices(InputList):
+    SystemSize = len(InputList)
+    ListOfElements = []
+    etab = []
+    for i in range(SystemSize):
+        ListOfElements.append(InputList[i][0])
+        etab.append([InputList[i][3][0][0],InputList[i][3][1][0]])
+
+
     number_elements = len(ListOfElements)
     number_nodes = FindMaxEntryInListList(etab)
     number_dofs_element = 2
