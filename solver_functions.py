@@ -1,4 +1,5 @@
 import numpy as np 
+import copy
 import explicit_functions as explicit
 import truss_element_linear_functions as truss
 import truss_element_non_linear_functions as truss_nl
@@ -15,15 +16,20 @@ def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
 
     e_tollerance = 10**(-6)
     system_size = K_T.shape[0]
+    K_n = copy.deepcopy(K_T)
     disp_n = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
     f_int_n = AssembleInternalForceVector(ListOfElement,disp_n,system_size)
     r_n = CalculateResidualStatic(f_int_n,F_master)
     r_n_norm = ResidualNorm(r_n)
 
-    while (r_n_norm > e_tollerance):
-        K_T_inv = np.linalg.inv(K_T)
-        disp_n_1 = np.dot(K_T_inv,r_n)
+    n = 0 ##test
+    #while (r_n_norm > e_tollerance):
+    while (n < 4):
+        n += 1
+        K_n_inv = np.linalg.inv(K_n)
+        disp_n_1 = np.dot(K_n_inv,r_n)
         disp_n_1 = disp_n - disp_n_1
+        print(disp_n_1)
 
         f_int_n_1 = AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
         r_n_1 = CalculateResidualStatic(f_int_n_1,F_master)
@@ -33,6 +39,8 @@ def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
         r_n_norm = ResidualNorm(r_n_1)
         r_n = r_n_1
         disp_n = disp_n_1
+        K_n = UpdateStiffnessMatrix(ListOfElement,disp_n,ListOfBc)
+        ModifyResidual(r_n,ListOfBc)
         
 
         print(r_n)
@@ -69,20 +77,25 @@ def ResidualNorm(res):
     res_norm = np.sqrt(res_norm[0,0])  
     return res_norm
 
-def UpdateStiffnessMatrix(ListOfElement,disp):
+def UpdateStiffnessMatrix(ListOfElement,disp,ListOfBc):
     number_elements = len(ListOfElement)
     new_elements = []
     for i in range(number_elements):
         nodes = ListOfElement[i][3]
         E,A =   ListOfElement[i][1],ListOfElement[i][2]
-        nodeA_ref, nodeB_ref = nodes[0],nodes[1]
-        dofAi, dofBi = (nodeA_ref[0]-1)*2, (nodeB_ref[0]-1)*2
-        dofAj, dofBj = dofAi+1, dofBi+1
+        new_elements.append([truss_nl.ElementStiffMatrix(E,A,nodes,disp),E,A,nodes])
 
-        disp_i = np.matrix([[disp[dofAi,0],disp[dofAj,0],disp[dofBi,0],disp[dofBj,0]]]).T
+    K_master = truss.AssembleElementMatrices(new_elements)
+    F_master = np.zeros((K_master.shape[0],1))
+    K_mod, F_mod = truss.ModifyMasterMatrix(K_master,F_master,ListOfBc)
 
-        new_elements.append(truss_nl.ElementStiffMatrix(E,A,nodes,disp_i))
+    return K_mod
 
+def ModifyResidual(residual,ListOfBc):
+    number_bc = len(ListOfBc)
+    for i in range(number_bc):
+        current_dof =  ListOfBc[i][0]
+        residual[current_dof] = 0.00
 
 
 def solve_explicit(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end):
