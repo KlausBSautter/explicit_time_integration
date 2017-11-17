@@ -4,18 +4,20 @@ import truss_element_linear_functions as truss
 import solver_functions as solver
 import general_functions as general
 import explicit_functions as explicit
+import matplotlib.pyplot as plt
 
 
 ################################################################################
 #################   POSTPROCESSING #############################################
 ################################################################################
 E, A = 2.1*(10**11), 0.01
+F = -2.4*(10**7)
 
 # nodes
 nodes = [[1,0.00,0.00],[2,2.00,1.00]]
 
 # neumann bc.
-F_master = np.matrix([[0.00,0.00,0.00,2.4*(10**7)]]).T
+F_master = np.matrix([[0.00,0.00,0.00,F]]).T
 
 # dirichlet bc. (#dofs,#disp)
 Bc_List = [[0,0.0],[1,0.0],[2,0.00]]
@@ -41,11 +43,14 @@ K_mod, F_mod = truss.ModifyMasterMatrix(K_master,F_master,Bc_List)
 ##### solve linear static
 U_linear_static = solver.solve_linear(K_mod,F_mod)
 F_linear_static = np.dot(K_master,U_linear_static)
-print(U_linear_static)
+
 
 
 #### solve non linear static
-solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
+U_non_linear_static = solver.solve_nonlinear_nr(K_mod,Element_List,Bc_List,F_mod)
+
+print(U_linear_static)
+print(U_non_linear_static)
 
 #### solve linear dynamic explicit (no damping yet)
 #disp_expl, time_expl =  solver.solve_explicit(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)
