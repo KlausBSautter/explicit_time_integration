@@ -26,8 +26,7 @@ def solve_nonlinear_nr(K_T,ListOfElement,ListOfBc,F_master):
     n = 0
     while (r_n_norm > e_tollerance):
         n += 1
-        K_n_inv = np.linalg.inv(K_n)
-        disp_n_1 = np.dot(K_n_inv,r_n)
+        disp_n_1 = np.linalg.solve(K_n,r_n)
         disp_n_1 = disp_n - disp_n_1
 
         f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
