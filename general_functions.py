@@ -18,6 +18,8 @@ def PrintDisplacement(disp,time,ListOfDof,Head):
     plt.legend()
     plt.grid(True)
     plt.title(Head)
+
+def ShowPrint():
     plt.show()
 
 

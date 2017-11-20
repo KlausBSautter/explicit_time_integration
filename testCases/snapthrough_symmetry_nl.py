@@ -47,9 +47,6 @@ print('############ RESULTS ############')
 print('linear disp: ', U_linear_static.T)
 print('non_linear disp: ', U_non_linear_static.T)
 
-#### solve linear dynamic explicit (no damping yet)
-#disp_expl, time_expl =  solver.solve_explicit(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.004)
-#general.PrintDisplacement(disp_expl,time_expl,[2,4],'Explicit Time Integration')
 
 
 
