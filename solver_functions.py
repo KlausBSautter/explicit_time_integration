@@ -28,8 +28,10 @@ def solve_nonlinear_nr_lc(K_T,ListOfElement,ListOfBc,F_master):
 
     f_int_n = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n,system_size)
     r_n = nl_solving.CalculateResidualStatic(f_int_n,F_master)
+    nl_solving.ModifyResidual(r_n,ListOfBc)
     r_n_norm = nl_solving.ResidualNorm(r_n)
     n = 0
+
     while (r_n_norm > e_tollerance):
         n += 1
         disp_n_1 = solve_linear(K_n,r_n)
@@ -52,7 +54,7 @@ def solve_nonlinear_nr_lc(K_T,ListOfElement,ListOfBc,F_master):
     print('################################################# \n\n')
     return disp_n
 
-def solve_nonlinear_nr_dc(K_T,ListOfElement,ListOfBc,F_master):
+def solve_nonlinear_nr_dc(ListOfElement,ListOfBc,F_master):
     
     ## displacement control: given displacement -> solve for load
 
@@ -60,36 +62,42 @@ def solve_nonlinear_nr_dc(K_T,ListOfElement,ListOfBc,F_master):
     print('Starting Newton-Raphson Iteration: ')
     start_time = timeit.default_timer()
     e_tollerance = 10**(-6)
-    system_size = K_T.shape[0]
-    K_n = copy.deepcopy(K_T)
-    disp_n = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
+    system_size = F_master.shape[0]
 
-    f_int_n = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n,system_size)
-    r_n = nl_solving.CalculateResidualStatic(f_int_n,F_master)
+    disp_const = explicit.CreateInitialDisplacementVector(ListOfBc,system_size)
+    f_ext_0 = nl_solving.CreateInitialForceVector(F_master,ListOfBc)
+    lambda_n = np.zeros((system_size,1))
+    f_ext_n = nl_solving.MultiplyVectorEntries(f_ext_0,lambda_n)
+
+    f_int_0 = nl_solving.AssembleInternalForceVector(ListOfElement,disp_const,system_size)
+    r_n = nl_solving.CalculateResidualStatic(f_int_0,f_ext_n)
+    nl_solving.ModifyResidual(r_n,ListOfBc)
     r_n_norm = nl_solving.ResidualNorm(r_n)
     n = 0
 
     while (r_n_norm > e_tollerance):
         n += 1
-        disp_n_1 = solve_linear(K_n,r_n)
-        disp_n_1 = disp_n - disp_n_1
+        lambda_n_1 = nl_solving.DivideVectorEntries(r_n,f_ext_0)
+        print(lambda_n_1)
+        lambda_n_1 = lambda_n - lambda_n_1
 
-        f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElement,disp_n_1,system_size)
-        r_n_1 = nl_solving.CalculateResidualStatic(f_int_n_1,F_master)
+        print(lambda_n_1)
+
+        f_ext_n_1 = nl_solving.MultiplyVectorEntries(lambda_n_1,f_ext_0)
+        r_n_1 = nl_solving.CalculateResidualStatic(f_int_0,f_ext_n_1)
 
         #prepare next step
         nl_solving.ModifyResidual(r_n_1,ListOfBc)
         r_n_norm = nl_solving.ResidualNorm(r_n_1)
         r_n = r_n_1
-        disp_n = disp_n_1
-        K_n = nl_solving.UpdateStiffnessMatrix(ListOfElement,disp_n,ListOfBc)
+        lambda_n = lambda_n_1
 
         nl_solving.PrintSolverUpdate(r_n,r_n_norm,n)
 
     elapsed = timeit.default_timer() - start_time
     print('\n'+'Finished in: ', elapsed, ' seconds\n')
     print('################################################# \n\n')
-    return disp_n
+    return lambda_n
 
 ################################################################################
 ##################### DYNAMIC SOLVERS ###########################################
