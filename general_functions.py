@@ -17,6 +17,8 @@ def PrintDisplacement(disp,time,ListOfDof,Head):
         PrintDofDisplacement(disp,time,ListOfDof[i])
     plt.legend()
     plt.grid(True)
+    plt.xlabel('time t')
+    plt.ylabel('displacement')
     plt.title(Head)
 
 def ShowPrint():
