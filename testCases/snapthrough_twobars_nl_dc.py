@@ -14,7 +14,7 @@ nodes = [[1,0.00,0.00],[2,2.00,1.00],[3,4.00,0.00]]
 F_master = np.matrix([[0.00,0.00,0.00,0.0,0.00,0.00]]).T
 
 # dirichlet bc. (#dofs,#disp)
-Bc_List = [[0,0.0],[1,0.0],[3,-0.16751849],[4,0.0],[5,0.00]]
+Bc_List = [[0,0.0],[1,0.0],[2,0.00],[3,-0.16751849],[4,0.0],[5,0.00]]
 
 # element stiffness matrices (E,A,L,alpha)
 Element1_K = truss_nl.ElementStiffMatrix(E,A,[nodes[0],nodes[1]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))

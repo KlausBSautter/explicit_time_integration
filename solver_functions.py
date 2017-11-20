@@ -75,13 +75,11 @@ def solve_nonlinear_nr_dc(ListOfElement,ListOfBc,F_master):
     r_n_norm = nl_solving.ResidualNorm(r_n)
     n = 0
 
-    while (r_n_norm > e_tollerance):
+    #while (r_n_norm > e_tollerance):
+    while (n<1):
         n += 1
-        lambda_n_1 = nl_solving.DivideVectorEntries(r_n,f_ext_0)
-        print(lambda_n_1)
+        lambda_n_1 = nl_solving.DivideVectorEntries(r_n,-f_ext_0)
         lambda_n_1 = lambda_n - lambda_n_1
-
-        print(lambda_n_1)
 
         f_ext_n_1 = nl_solving.MultiplyVectorEntries(lambda_n_1,f_ext_0)
         r_n_1 = nl_solving.CalculateResidualStatic(f_int_0,f_ext_n_1)

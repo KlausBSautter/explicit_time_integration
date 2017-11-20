@@ -90,8 +90,8 @@ def CreateInitialForceVector(F_vec,ListOfBc):
     for i in range(F_vec.shape[0]):
         F_init[i] = 1.00
     for j in range(number_Bc):
-        current_dof =  ListOfBc[i][0]
-        current_disp = ListOfBc[i][1] 
+        current_dof =  ListOfBc[j][0]
+        current_disp = ListOfBc[j][1] 
         if (abs(current_disp) < numerical_limit): F_init[current_dof] = 0.00  #### !! think about initial displacements in case of dynamics --> moving also consider res
     return F_init
 
