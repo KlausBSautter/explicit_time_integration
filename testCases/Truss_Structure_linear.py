@@ -17,11 +17,11 @@ F_master = np.matrix([[0.00,0.00,F,F,F,F,0.00,0.00]]).T
 Bc_List = [[0,0.0],[1,0.0],[6,0.00],[7,0.00]]
 
 # element stiffness matrices (E,A,L,alpha)
-Element1_K = truss_nl.ElementStiffMatrix(E,A,[nodes[0],nodes[1]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
-Element2_K = truss_nl.ElementStiffMatrix(E,A,[nodes[1],nodes[2]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
-Element3_K = truss_nl.ElementStiffMatrix(E,A,[nodes[2],nodes[3]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
-Element4_K = truss_nl.ElementStiffMatrix(E,A,[nodes[0],nodes[2]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
-Element5_K = truss_nl.ElementStiffMatrix(E,A,[nodes[1],nodes[3]],explicit.CreateInitialDisplacementVector(Bc_List,F_master.shape[0]))
+Element1_K = truss.ElementStiffMatrix(E,A,[nodes[0],nodes[1]])
+Element2_K = truss.ElementStiffMatrix(E,A,[nodes[1],nodes[2]])
+Element3_K = truss.ElementStiffMatrix(E,A,[nodes[2],nodes[3]])
+Element4_K = truss.ElementStiffMatrix(E,A,[nodes[0],nodes[2]])
+Element5_K = truss.ElementStiffMatrix(E,A,[nodes[1],nodes[3]])
 
 # element mass matrics (rho,A,L)
 Element1_M = truss.ElementMassMatrix(7850,A,[nodes[0],nodes[1]])
@@ -54,15 +54,16 @@ C_master = np.zeros((K_master.shape[0],K_master.shape[0]))
 #################   SOLVING        #############################################
 ################################################################################
 
-#### solve non linear static
-U_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List_K,Bc_List,F_mod)
+##### solve linear static
+U_linear_static = solver.solve_linear(K_mod,F_mod)
+F_linear_static = np.dot(K_master,U_linear_static)
 
-#### solve non-linear dynamic explicit 
-disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,Element_List_K,Bc_List,0.00001, 0.02)
-general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3,4,5],'Explicit Time Integration Non-Linear')
+#### solve linear dynamic explicit 
+disp_expl, time_expl =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.000001, 0.01)
+general.PrintDisplacement(disp_expl,time_expl,[2,3,4,5],'Explicit Time Integration Linear')
 
 print('############ RESULTS ############')
-print('non_linear displacement static: ', U_non_linear_static.T)
+print('linear displacement static: ', U_linear_static.T)
 general.ShowPrint()
 
 

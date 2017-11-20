@@ -53,6 +53,7 @@ def ElementStiffMatrix(E,A,nodes,disp):
 
 
 def CalculateInternalForces(E,A,nodes,disp):
+    numerical_limit = 10.0**(-16)
     dx,dy,l = CalculateCurrentLength(nodes,disp)
     L = CalculateRefLength(nodes)
     e_gl = CalculateGreenLagrangeStrain(nodes,disp)
@@ -60,7 +61,8 @@ def CalculateInternalForces(E,A,nodes,disp):
     f_int_loc = np.matrix([[-N,0.00,N,0.00]]).T
     
     # rotate to global system
-    alpha = np.arctan(dy/dx)
+    if (abs(dx) < numerical_limit): alpha = np.pi/2.00
+    else: alpha = np.arctan(dy/dx)
     c = np.cos(alpha)
     s = np.sin(alpha)
     T = np.matrix([[c,-s,0,0],[s,c,0,0],[0,0,c,-s],[0,0,s,c]])
