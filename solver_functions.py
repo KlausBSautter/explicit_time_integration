@@ -153,7 +153,7 @@ def solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,d_t,t_end)
     return disp_expl, time_expl
 
 
-def solve_explicit_non_linear(M_master,K_master,C_master,F_master,ListOfElements,Bc_List,d_t,t_end):
+def solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,ListOfElements,Bc_List,d_t,t_end):
     # initialize
     M_master_inv = explicit.InverseLumpedMatrix(M_master)
     disp_n = explicit.CreateInitialDisplacementVector(Bc_List,K_master.shape[0])
@@ -162,9 +162,10 @@ def solve_explicit_non_linear(M_master,K_master,C_master,F_master,ListOfElements
 
 
 
-    #f_int_n = truss.CalculateInternalForces(K_master,disp_n)
-    ## create BcList with current disp
-    #f_int_n = nl_solving.AssembleInternalForceVector(ListOfElements,disp_n,M_master.shape[0])
+    print('\n' + '################################################# \n')
+    print('Starting Explicit Time Integration: ')
+    start_time = timeit.default_timer()
+    f_int_n = solve_nonlinear_nr_dc(ListOfElements,Bc_List,F_mod)
 
 
 
@@ -186,10 +187,8 @@ def solve_explicit_non_linear(M_master,K_master,C_master,F_master,ListOfElements
         disp_n_1 = explicit.UpdateDisplacement(v_n_05,disp_n,d_t)
 
 
-        #f_int_n_1 = truss.CalculateInternalForces(K_master,disp_n_1)   #----------> linear part!!!
-        ## create BcList with current disp
-        #f_int_n_1 = nl_solving.AssembleInternalForceVector(ListOfElements,disp_n,M_master.shape[0])
-
+        bc_list_n_1 = explicit.UpdateNonLinearDisplacementVector(disp_n_1)
+        f_int_n_1 = solve_nonlinear_nr_dc(ListOfElements,bc_list_n_1,F_mod)
 
         res_n_1 = explicit.CalculateResidualExplicit(F_master,f_int_n_1)
         # update acc + vel
@@ -205,5 +204,9 @@ def solve_explicit_non_linear(M_master,K_master,C_master,F_master,ListOfElements
         vel_n = vel_n_1
         acc_n = acc_n_1
         t_n += d_t
+
+    elapsed = timeit.default_timer() - start_time
+    print('\n'+'Finished in: ', elapsed, ' seconds\n')
+    print('################################################# \n\n')
 
     return disp_expl, time_expl

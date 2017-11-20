@@ -58,3 +58,10 @@ def EnforceBoundaryConditionsVelocity(ListOfBc,vel):
 def UpdateDisplacement(vel,disp,d_t):
     return (disp + (vel * d_t))
 
+
+def UpdateNonLinearDisplacementVector(disp):
+    system_size = disp.shape[0]
+    bc_list_return = []
+    for i in range(system_size):
+        bc_list_return.append([i,disp[i,0]])
+    return bc_list_return

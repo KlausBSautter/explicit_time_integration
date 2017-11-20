@@ -4,6 +4,4 @@ including:
 - linear static analysis
 - non_linear static analysis
 - linear explicit dynamic analysis
-
-future work:
 - non_linear explicit dynamic analysis
