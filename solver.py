@@ -75,8 +75,7 @@ def solve_nonlinear_nr_dc(ListOfElement,ListOfBc,F_master):
     r_n_norm = nl_solving.ResidualNorm(r_n)
     n = 0
 
-    #while (r_n_norm > e_tollerance):
-    while (n<1):
+    while (r_n_norm > e_tollerance):
         n += 1
         lambda_n_1 = nl_solving.DivideVectorEntries(r_n,-f_ext_0)
         lambda_n_1 = lambda_n - lambda_n_1
@@ -89,7 +88,6 @@ def solve_nonlinear_nr_dc(ListOfElement,ListOfBc,F_master):
         r_n_norm = nl_solving.ResidualNorm(r_n_1)
         r_n = r_n_1
         lambda_n = lambda_n_1
-
         nl_solving.PrintSolverUpdate(r_n,r_n_norm,n)
 
     elapsed = timeit.default_timer() - start_time
