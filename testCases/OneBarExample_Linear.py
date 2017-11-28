@@ -50,7 +50,7 @@ F_linear_static = np.dot(K_master,U_linear_static)
 disp_expl, time_expl =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.002)
 
 
-general.PrintDisplacement(disp_expl,time_expl,[2],'Explicit Time Integration')
+general.PrintDisplacement(disp_expl,time_expl,[2],'Explicit Time Integration','lin',0)
 general.ShowPrint()
 
 

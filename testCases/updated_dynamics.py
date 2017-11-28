@@ -50,13 +50,19 @@ F_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List_K,Bc_List,
 print('############ RESULTS ############')
 print('non_linear Force: ', F_non_linear_static.T)
 
+print_dof = 3
+t_end = 0.01
 
 #### solve non-linear dynamic explicit 
-disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,Element_List_K,Bc_List,0.00001, 0.029)
-general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3],'Explicit Time Integration Non-Linear','non_lin_nr',0)
+disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,Element_List_K,Bc_List,0.00001, t_end)
+general.PrintDisplacement(disp_expl_nl,time_expl_nl,[print_dof],'Explicit Time Integration Non-Linear','non_lin_nr',0)
 
 #### solve linear dynamic explicit 
-disp_expl, time_expl =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.00001, 0.029)
-general.PrintDisplacement(disp_expl,time_expl,[3],'Explicit Time Integration Comparison','lin',1)
+disp_expl, time_expl =  solver.solve_explicit_linear(M_master,K_master,C_master,F_master,Bc_List,0.00001, t_end)
+general.PrintDisplacement(disp_expl,time_expl,[print_dof],'Explicit Time Integration Comparison','lin',1)
+
+#### solve updated dynamic explicit 
+disp_expl, time_expl =  solver.solve_explicit_linear_updated(M_master,K_mod,C_master,F_master,Element_List_K,Bc_List,0.000002, t_end)
+general.PrintDisplacement(disp_expl,time_expl,[print_dof],'Explicit Time Integration Comparison','non_lin_updated',2)
 
 general.ShowPrint()

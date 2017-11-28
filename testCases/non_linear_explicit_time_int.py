@@ -49,5 +49,5 @@ print('non_linear Force: ', F_non_linear_static.T)
 
 #### solve non-linear dynamic explicit 
 disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,Element_List_K,Bc_List,0.0001, 0.029)
-general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3],'Explicit Time Integration Non-Linear')
+general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3],'Explicit Time Integration Non-Linear','non_lin_nr',0)
 general.ShowPrint()

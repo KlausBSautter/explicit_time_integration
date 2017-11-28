@@ -6,3 +6,4 @@ import truss_element_linear_functions as truss
 import solver 
 import general_functions as general
 import explicit_functions as explicit
+import matplotlib.pyplot as plt

@@ -59,7 +59,7 @@ U_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List_K,Bc_List,
 
 #### solve non-linear dynamic explicit 
 disp_expl_nl, time_expl_nl =  solver.solve_explicit_non_linear(M_master,K_master,C_master,F_master,F_mod,Element_List_K,Bc_List,0.00001, 0.02)
-general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3,4,5],'Explicit Time Integration Non-Linear')
+general.PrintDisplacement(disp_expl_nl,time_expl_nl,[3,4,5],'Explicit Time Integration Non-Linear','non_lin_nr',2)
 
 print('############ RESULTS ############')
 print('non_linear displacement static: ', U_non_linear_static.T)

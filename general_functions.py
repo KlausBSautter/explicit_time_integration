@@ -1,20 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
+from random import randint
 
-def PrintDofDisplacement(disp,time,dof):
+def PrintDofDisplacement(disp,time,dof,Label,line_sytle):
     len_array = len(time)
     dof_disp = []
+
     for i in range(len_array):
         dof_disp.append(disp[i][dof])
-    plt.plot(time,dof_disp, label='dof ' + str(dof))
+    plt.plot(time,dof_disp,line_sytle, label='dof ' + str(dof) + ' ' + Label)
 
     
 
-def PrintDisplacement(disp,time,ListOfDof,Head):
+def PrintDisplacement(disp,time,ListOfDof,Head,Label,style):
     number_dof = len(ListOfDof)
+    style_guide = ['-', '--', '-.', ':']
     for i in range(number_dof):
-        PrintDofDisplacement(disp,time,ListOfDof[i])
+        PrintDofDisplacement(disp,time,ListOfDof[i],Label,style_guide[style])
     plt.legend()
     plt.grid(True)
     plt.xlabel('time t')

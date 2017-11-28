@@ -45,7 +45,8 @@ U_non_linear_static = solver.solve_nonlinear_nr_lc(K_mod,Element_List,Bc_List,F_
 
 print('############ RESULTS ############')
 print('linear disp: ', U_linear_static.T)
-print('non_linear disp: ', U_non_linear_static.T)
+#print('non_linear disp: ', U_non_linear_static.T)
+print('non_linear disp: ', U_non_linear_static.T[0,3])
 
 
 
